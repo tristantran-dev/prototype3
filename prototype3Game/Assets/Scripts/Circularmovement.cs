@@ -9,6 +9,7 @@ public class NewBehaviourScript : MonoBehaviour
     Transform rotationCenter;
     [SerializeField] float roationRadius = 5f;
     [SerializeField] float angularSpeed = 2f;
+    [SerializeField] private GameObject goalFx;
     private CircleMake circleMakeScript;
 
     float posx, posy, angle = 0f;
@@ -50,6 +51,9 @@ public class NewBehaviourScript : MonoBehaviour
         Debug.Log("Trigger entered with: " + other.gameObject.tag);
         if (Input.GetKey("space") && other.gameObject.CompareTag("SmallCircle"))
         {
+            //kind of off...
+            GameObject fx = Instantiate(goalFx, transform.position, Quaternion.identity);
+            Destroy(fx,1f);
             Destroy(other.gameObject);
             circleMakeScript.SpawnRandomCircle();
         }
