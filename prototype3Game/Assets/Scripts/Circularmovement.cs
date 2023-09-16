@@ -9,19 +9,21 @@ public class NewBehaviourScript : MonoBehaviour
     Transform rotationCenter;
     [SerializeField] float roationRadius = 5f;
     [SerializeField] float angularSpeed = 2f;
+    private CircleMake circleMakeScript;
 
     float posx, posy, angle = 0f;
     bool clockwise = true;
+
+    private void Start()
+    {
+        circleMakeScript = FindObjectOfType<CircleMake>();
+    }
+
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKey("space")){
-            if(clockwise){
-                clockwise = false;
-            }
-            else{
-                clockwise = true;
-            }
+        if(Input.GetKeyDown("space")){
+            clockwise = !clockwise;
         }
 
         posx = rotationCenter.position.x + Mathf.Cos(angle) * roationRadius;
@@ -40,6 +42,16 @@ public class NewBehaviourScript : MonoBehaviour
         }
         else if ( angle <= 0f && clockwise){
           angle = 360f;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        Debug.Log("Trigger entered with: " + other.gameObject.tag);
+        if (Input.GetKey("space") && other.gameObject.CompareTag("SmallCircle"))
+        {
+            Destroy(other.gameObject);
+            circleMakeScript.SpawnRandomCircle();
         }
     }
 }
