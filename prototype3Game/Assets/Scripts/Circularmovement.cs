@@ -13,6 +13,7 @@ public class NewBehaviourScript : MonoBehaviour
     private CircleMake circleMakeScript;
 
     float posx, posy, angle = 0f;
+    int missedNotes = 0;
     bool clockwise = true;
 
     private void Start()
@@ -44,6 +45,10 @@ public class NewBehaviourScript : MonoBehaviour
         else if ( angle <= 0f && clockwise){
           angle = 360f;
         }
+
+        if( missedNotes > 3) {
+            LevelManager.main.loser();
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -52,10 +57,14 @@ public class NewBehaviourScript : MonoBehaviour
         if (Input.GetKey("space") && other.gameObject.CompareTag("SmallCircle"))
         {
             //kind of off...
+            LevelManager.main.IncreasePoints();
             GameObject fx = Instantiate(goalFx, transform.position, Quaternion.identity);
             Destroy(fx,1f);
             Destroy(other.gameObject);
             circleMakeScript.SpawnRandomCircle();
+        }
+        else if ( other.gameObject.CompareTag("SmallCircle") ){
+          missedNotes += 1;
         }
     }
 }
