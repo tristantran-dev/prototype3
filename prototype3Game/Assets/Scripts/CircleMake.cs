@@ -7,10 +7,12 @@ public class CircleMake : MonoBehaviour
     // Start is called before the first frame update
     public LineRenderer circleRenderer;
     public GameObject smallCirclePrefab;
+    public int sizeRadius = 5;
+
     void Start()
     {
-        drawCircle(100,5);
-        SpawnRandomCircle();
+        drawCircle(100, sizeRadius);
+        SpawnCircleTopLeft();
     }
 
     // Update is called once per frame
@@ -34,11 +36,19 @@ public class CircleMake : MonoBehaviour
         }
     }
 
+    public void SpawnCircleTopLeft()
+    {
+        float randomAngle = Random.Range(0.5f, 1f * Mathf.PI);
+        float x = Mathf.Cos(randomAngle) * sizeRadius;
+        float y = Mathf.Sin(randomAngle) * sizeRadius;
+        Instantiate(smallCirclePrefab, new Vector3(x, y, 0), Quaternion.identity);
+    }
+
     public void SpawnRandomCircle()
     {
         float randomAngle = Random.Range(0f, 2f * Mathf.PI);
-        float x = Mathf.Cos(randomAngle) * 5;
-        float y = Mathf.Sin(randomAngle) * 5;
+        float x = Mathf.Cos(randomAngle) * sizeRadius;
+        float y = Mathf.Sin(randomAngle) * sizeRadius;
         Instantiate(smallCirclePrefab, new Vector3(x, y, 0), Quaternion.identity);
     }
 }
