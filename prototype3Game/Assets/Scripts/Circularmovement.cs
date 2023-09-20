@@ -21,12 +21,21 @@ public class Circularmovement : MonoBehaviour
     public Sprite fullHeart;
     public Sprite emptyHeart;
 
+    public static Circularmovement main;
+    [SerializeField] float baseAngularSpeed = 2f; // base speed
+    [SerializeField] float speedIncreaseFactor = 0.1f;
+
     float posx, posy, angle = 0f;
     int missedNotes = 0;
     bool clockwise = true;
     bool canIncrementMissedNotes = true;
     bool wasHit = true;
     bool overlapping = false;
+
+    private void Awake()
+    {
+        main = this;
+    }
 
     private void Start()
     {
@@ -111,8 +120,14 @@ public class Circularmovement : MonoBehaviour
     {
         // Your hit handling logic
         LevelManager.main.IncreasePoints();
+        LevelManager.main.UpdateCombo(true);
         Destroy(smallCircle);
         circleMakeScript.SpawnRandomCircle();
+    }
+
+    public void UpdateSpeed(int combo)
+    {
+        angularSpeed = baseAngularSpeed + (combo * speedIncreaseFactor);
     }
 
     private void OnTriggerStay2D(Collider2D collision)
@@ -178,6 +193,7 @@ public class Circularmovement : MonoBehaviour
     private void HandleMiss(GameObject missedObject)
     {
         health -= 1;
+        LevelManager.main.UpdateCombo(false);
         Debug.Log("Missed a circle: " + missedNotes);
         StartCoroutine(MissedNotesCooldown());
     }

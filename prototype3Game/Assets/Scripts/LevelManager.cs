@@ -15,13 +15,16 @@ public class LevelManager : MonoBehaviour
     [Header("Attributes")]
     [SerializeField] private int maxMissed;
 
+    [Header("Combo")]
+    public int combo = 0;
+
     private int missedNotes;
     private int points = 0;
     [HideInInspector] public bool survived;
     // Start is called before the first frame update
 
     private void Awake() {
-      main = this;
+        main = this;
     }
     void Start()
     {
@@ -29,17 +32,25 @@ public class LevelManager : MonoBehaviour
     }
 
     public void win(){
-      survived = true;
-      levelCompleteUI.SetActive(true);
+        survived = true;
+        levelCompleteUI.SetActive(true);
     }
 
     public void loser(){
-      gameOverUI.SetActive(true);
+        gameOverUI.SetActive(true);
     }
 
     public void IncreasePoints(){
-      points += 1;
-      UpdatePointsUI();
+        points += 1;
+        UpdatePointsUI();
+    }
+
+    public void UpdateCombo(bool hit)
+    {
+        combo = hit ? combo + 1 : 0;
+
+        // Notify the NewBehaviourScript to update speed
+        Circularmovement.main.UpdateSpeed(combo);
     }
 
     // Update is called once per frame
