@@ -6,9 +6,13 @@ public class CircleMake : MonoBehaviour
 {
     // Start is called before the first frame update
     [SerializeField] private Transform playerTransform;
+    [SerializeField] public GameObject avoidCirclePrefab;
+    public LevelManager levelManager;
+
     public LineRenderer circleRenderer;
     public GameObject smallCirclePrefab;
     public int sizeRadius = 5;
+    public bool avoidSpawned = false;
 
     void Start()
     {
@@ -19,7 +23,11 @@ public class CircleMake : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (!avoidSpawned && levelManager.combo > 10)
+        {
+            avoidSpawned = true;
+            SpawnAvoidCircle();
+        }
     }
 
     void drawCircle(int steps, float radius){
@@ -53,7 +61,7 @@ public class CircleMake : MonoBehaviour
 
         Vector3 newCirclePosition = new Vector3(x, y, 0);
         float distanceToPlayer = Vector3.Distance(newCirclePosition, playerTransform.position);
-        float minDistanceToPlayer = 1.0f;
+        float minDistanceToPlayer = 1.2f;
 
         while (distanceToPlayer < minDistanceToPlayer)
         {
@@ -67,5 +75,38 @@ public class CircleMake : MonoBehaviour
             distanceToPlayer = Vector3.Distance(newCirclePosition, playerTransform.position);
         }
         Instantiate(smallCirclePrefab, new Vector3(x, y, 0), Quaternion.identity);
+    }
+
+    public void SpawnAvoidCircle()
+    {
+        float randomAngle = Random.Range(0f, 2f * Mathf.PI);
+        float x = Mathf.Cos(randomAngle) * sizeRadius;
+        float y = Mathf.Sin(randomAngle) * sizeRadius;
+
+        Vector3 newCirclePosition = new Vector3(x, y, 0);
+        float distanceToPlayer = Vector3.Distance(newCirclePosition, playerTransform.position);
+        float minDistanceToPlayer = 1.2f;
+
+        while (distanceToPlayer < minDistanceToPlayer)
+        {
+            // Generate a new random position
+            randomAngle = Random.Range(0f, 2f * Mathf.PI);
+            x = Mathf.Cos(randomAngle) * sizeRadius;
+            y = Mathf.Sin(randomAngle) * sizeRadius;
+
+            // Recalculate new distance
+            newCirclePosition = new Vector3(x, y, 0);
+            distanceToPlayer = Vector3.Distance(newCirclePosition, playerTransform.position);
+        }
+        GameObject avoidCircle = Instantiate(avoidCirclePrefab, new Vector3(x, y, 0), Quaternion.identity);
+        Destroy(avoidCircle, 1.5f);
+        levelManager.IncreasePoints();
+
+        StartCoroutine(ResetAvoidSpawnedFlag());
+    }
+    private IEnumerator ResetAvoidSpawnedFlag()
+    {
+        yield return new WaitForSeconds(1.5f);
+        avoidSpawned = false;
     }
 }

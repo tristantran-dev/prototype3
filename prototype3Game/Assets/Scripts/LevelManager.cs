@@ -41,7 +41,7 @@ public class LevelManager : MonoBehaviour
     }
 
     public void IncreasePoints(){
-        points += 1;
+        points += combo;
         UpdatePointsUI();
     }
 

@@ -16,6 +16,7 @@ public class Circularmovement : MonoBehaviour
     public AudioSource backgroundSound;
     public AudioSource hitSound;
     public AudioSource failSound;
+    public AudioSource missSound;
     public int health = 3;
     public Image[] hearts;
     public Sprite fullHeart;
@@ -90,26 +91,11 @@ public class Circularmovement : MonoBehaviour
             LevelManager.main.loser();
         }
 
-        /*if (Input.GetKeyDown("space") && overlapping)
-        {
-            Debug.Log("space clicked and in circle");
-            //kind of off...
-            LevelManager.main.IncreasePoints();
-            *//*GameObject fx = Instantiate(goalFx, transform.position, Quaternion.identity);
-            Destroy(fx, 0.5f);*//*
-            Debug.Log("change washit to true");
-            wasHit = true;
-            Debug.Log("wasHit is " + wasHit);
-            Destroy(smallCircle);
-            circleMakeScript.SpawnRandomCircle();
-            wasHit = false;
-            //overlapping = false;
-        }*/
         if (Input.GetKeyDown("space") && overlapping)
         {
             // Handle hit
-            hitSound.Play();
             wasHit = true;
+            hitSound.Play();
             GameObject fx = Instantiate(goalFx, transform.position, Quaternion.identity);
             Destroy(fx, 0.5f);
             HandleHit();
@@ -137,52 +123,30 @@ public class Circularmovement : MonoBehaviour
             overlapping = true;
             smallCircle = collision.gameObject;
         }
-    }
 
-    /* private void OnTriggerStay2D(Collider2D other)
-     {
-         Debug.Log("Trigger entered with: " + other.gameObject.tag);
-         //overlapping = true;
-         if (Input.GetKeyDown("space") && other.gameObject.CompareTag("SmallCircle"))
-         {
-             Debug.Log("space clicked and in circle");
-             //kind of off...
-             LevelManager.main.IncreasePoints();
-             GameObject fx = Instantiate(goalFx, transform.position, Quaternion.identity);
-             Destroy(fx, 0.5f);
-             Debug.Log("change washit to true");
-             wasHit = true;
-             Debug.Log("wasHit is " + wasHit);
-             Destroy(other.gameObject);
-             circleMakeScript.SpawnRandomCircle();
-         }
-     }*/
+        else if (collision.gameObject.CompareTag("AvoidCircle"))
+        {
+            health--;
+            missSound.Play();
+            LevelManager.main.UpdateCombo(false);
+            smallCircle = collision.gameObject;
+            Destroy(smallCircle);
+            circleMakeScript.avoidSpawned = false;
+        }
+    }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        /*Debug.Log("wasHit is " + wasHit);
-        if (other.gameObject.CompareTag("SmallCircle") && canIncrementMissedNotes && !wasHit && other.gameObject.activeInHierarchy)
-        {
-            Debug.Log("collision out");
-            missedNotes += 1;
-            Debug.Log("missed a circle" + missedNotes);
-            StartCoroutine(MissedNotesCooldown());
-        }
-        if (other.gameObject.CompareTag("SmallCircle"))
-        {
-            Debug.Log("change washit to false");
-            wasHit = false;
-            overlapping = false;
-        }
-        *//* Debug.Log("change washit to false");
-         wasHit = false;*/
-
         if (other.gameObject.CompareTag("SmallCircle"))
         {
             overlapping = false;  // Reset overlapping on exit
 
             if (!wasHit && canIncrementMissedNotes && other.gameObject.activeInHierarchy)
             {
+                /*if (other.gameObject.CompareTag("AvoidCircle"))
+                {
+                    // Logic for successfully avoiding the circle (if needed)
+                }*/
                 // Handle miss only if wasHit is false
                 HandleMiss(other.gameObject);
             }
@@ -193,6 +157,7 @@ public class Circularmovement : MonoBehaviour
     private void HandleMiss(GameObject missedObject)
     {
         health -= 1;
+        missSound.Play();
         LevelManager.main.UpdateCombo(false);
         Debug.Log("Missed a circle: " + missedNotes);
         StartCoroutine(MissedNotesCooldown());
