@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Circularmovement : MonoBehaviour
@@ -11,6 +12,8 @@ public class Circularmovement : MonoBehaviour
     [SerializeField] float rotationRadius = 5f;
     [SerializeField] float angularSpeed = 2f;
     [SerializeField] private GameObject goalFx;
+    public float slowDownFactor = 0.05f;
+    public float slowDownDuration = 2f;
     private GameObject smallCircle;
     private CircleMake circleMakeScript;
     public AudioSource backgroundSound;
@@ -88,6 +91,7 @@ public class Circularmovement : MonoBehaviour
                 backgroundSound.Stop();
                 failSound.Play();
             }
+            StartCoroutine(SlowDownTime());
             LevelManager.main.loser();
         }
 
@@ -99,6 +103,11 @@ public class Circularmovement : MonoBehaviour
             GameObject fx = Instantiate(goalFx, transform.position, Quaternion.identity);
             Destroy(fx, 0.5f);
             HandleHit();
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            ResetGame();
         }
     }
 
@@ -168,5 +177,25 @@ public class Circularmovement : MonoBehaviour
         canIncrementMissedNotes = false;
         yield return new WaitForSeconds(0.5f); // Adjust the cooldown time as necessary
         canIncrementMissedNotes = true;
+    }
+    public void ResetGame()
+    {
+        Time.timeScale = 1f; // Reset the time scale
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name); // Reload the current scene
+    }
+
+    private IEnumerator SlowDownTime()
+    {
+        float originalTimeScale = Time.timeScale;
+        float elapsedTime = 0f;
+
+        while (Time.timeScale > slowDownFactor)
+        {
+            elapsedTime += Time.unscaledDeltaTime;
+            Time.timeScale = Mathf.Lerp(originalTimeScale, slowDownFactor, elapsedTime / slowDownDuration);
+            yield return null;
+        }
+
+        Time.timeScale = 0f; // Finally, set time scale to zero to pause the game
     }
 }
