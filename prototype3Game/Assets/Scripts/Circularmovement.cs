@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Circularmovement : MonoBehaviour
 {
@@ -12,6 +13,13 @@ public class Circularmovement : MonoBehaviour
     [SerializeField] private GameObject goalFx;
     private GameObject smallCircle;
     private CircleMake circleMakeScript;
+    public AudioSource backgroundSound;
+    public AudioSource hitSound;
+    public AudioSource failSound;
+    public int health = 3;
+    public Image[] hearts;
+    public Sprite fullHeart;
+    public Sprite emptyHeart;
 
     float posx, posy, angle = 0f;
     int missedNotes = 0;
@@ -28,6 +36,16 @@ public class Circularmovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        foreach (Image img in hearts)
+        {
+            img.sprite = emptyHeart;
+        }
+        for (int i = 0; i < health; i++)
+        {
+            hearts[i].sprite = fullHeart;
+        }
+
+
         Debug.Log("washit is" + wasHit);
         Debug.Log("overlapping is" + overlapping);
         wasHit = false;
@@ -53,8 +71,13 @@ public class Circularmovement : MonoBehaviour
             angle = angle - (Time.deltaTime * angularSpeed);
         }
 
-        if (missedNotes >= 3)
+        if (health == 0)
         {
+            if (backgroundSound.isPlaying)
+            {
+                backgroundSound.Stop();
+                failSound.Play();
+            }
             LevelManager.main.loser();
         }
 
@@ -76,6 +99,7 @@ public class Circularmovement : MonoBehaviour
         if (Input.GetKeyDown("space") && overlapping)
         {
             // Handle hit
+            hitSound.Play();
             wasHit = true;
             GameObject fx = Instantiate(goalFx, transform.position, Quaternion.identity);
             Destroy(fx, 0.5f);
@@ -153,7 +177,7 @@ public class Circularmovement : MonoBehaviour
     }
     private void HandleMiss(GameObject missedObject)
     {
-        missedNotes += 1;
+        health -= 1;
         Debug.Log("Missed a circle: " + missedNotes);
         StartCoroutine(MissedNotesCooldown());
     }
